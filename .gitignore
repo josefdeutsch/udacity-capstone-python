@@ -1,4 +1,19 @@
-/.gitignore
-/__pycache__
-/*.egg-info
-/.vscode
+# Bytecode
+__pycache__/
+*.pyc
+
+# Virtual environments
+.venv/
+env/
+
+# Distribution / Packaging
+*.egg-info/
+dist/
+build/
+
+# OS generated files
+.DS_Store
+
+# IDE specific
+.idea/
+*.swp
