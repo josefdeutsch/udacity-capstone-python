@@ -1,14 +1,23 @@
 import os
 from dotenv import load_dotenv
+
+from example.package_1.objectstrategy import CSVImporter, FileProcessor
+from example.package_2.functionstrategy import process_file
 # example/__init__.py
-from example.package_1.awesome_module import hello
-from example.package_2.module import hello
+
 
 def main():
     load_dotenv()
-    print(hello)
-    hello
-
+    # Assuming 'example.csv' is in your current directory
+    print('*** Functional Strategy *** :')
+    print(process_file('/Users/Joseph/Documents/Template/python-structure-template/example/res/example.csv'))
+    print(process_file('/Users/Joseph/Documents/Template/python-structure-template/example/res/example.json'))
+    
+    print('*** Object Strategy *** :')
+    csv_importer = CSVImporter()
+    processor = FileProcessor(csv_importer)
+    print(processor.process_file('/Users/Joseph/Documents/Template/python-structure-template/example/res/example.csv'))
+    print(processor.process_file('/Users/Joseph/Documents/Template/python-structure-template/example/res/example.json'))
 
 if __name__ == "__main__":
     try:
