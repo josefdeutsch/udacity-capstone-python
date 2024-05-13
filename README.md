@@ -5,7 +5,7 @@ In order to create a Python project with a similar structure you need to do the 
 
 ### The structure of the project should be as follows: 
 ```
-project
+projects
 ├── README.md
 ├── example
 │   ├── __init__.py
