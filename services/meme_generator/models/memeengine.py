@@ -15,9 +15,15 @@ class MemeEngine:
                 img = img.resize((width, height), Image.Resampling.LANCZOS)
 
                 draw = ImageDraw.Draw(img)
-                
+                # Navigate up two levels from the script location
+               
+                current_dir = os.path.dirname(__file__)  # Gets the directory where the script is located
+                base_dir = os.path.join(current_dir, '..', '..', '..')  # Moves up three directories
+                base_dir = os.path.abspath(base_dir)  # Resolves to absolute path
+               
                 # Check if the font file exists, else use default font
-                font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+                font_path = os.path.join(base_dir, "data_private", "res", "font","open-sans/OpenSans-Regular.ttf")
+
                 if os.path.exists(font_path):
                     font_size = int(height * 0.05)
                     font = ImageFont.truetype(font_path, font_size)
@@ -49,28 +55,7 @@ class MemeEngine:
             print(f"An error occurred: {e}")
             return ""
 
-# Example usage remains the same
 
-
-
-def get_image_path(image_filename):
-    # Get the directory where the current script is located
-    script_directory = os.path.dirname(os.path.abspath(__file__))
-    # Combine the directory path with the image filename
-    return os.path.join(script_directory, image_filename)
-
-
-output_directory = "/Users/Joseph/udacity-capstone-python/python-structure-template/services/meme_generator/tmp"  # specify the output directory for saved memes
-meme_generator = MemeEngine(output_directory)
-
-image_path = get_image_path("xander_1.jpg")
-print("Image path:", image_path)
-text = "When you realize you've debugged successfully"
-author = "Anonymous"
-
-meme_path = meme_generator.make_meme(image_path, text, author)
-print(f"Meme saved at: {meme_path}")
-# Usage
 
 
 
