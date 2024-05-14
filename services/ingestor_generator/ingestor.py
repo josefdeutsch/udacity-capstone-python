@@ -4,9 +4,10 @@ from services.ingestor_generator.models.CSVIngestor import CSVIngestor
 from services.ingestor_generator.models.DOCXIngestor import DOCXIngestor
 from services.ingestor_generator.base.QuoteModel import QuoteModel
 from services.ingestor_generator.models.TXTIngestor import TXTIngestor
+from services.ingestor_generator.models.PDFIngestor import PDFIngestor
 
 class Ingestor:
-    ingestors = [CSVIngestor, DOCXIngestor, TXTIngestor]  # Add other specific ingestors as needed
+    ingestors = [CSVIngestor, DOCXIngestor, TXTIngestor,PDFIngestor]  # Add other specific ingestors as needed
 
     @classmethod
     def parse(cls, path: str) -> List[QuoteModel]:

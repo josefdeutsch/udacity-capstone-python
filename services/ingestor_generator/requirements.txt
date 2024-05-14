@@ -1,11 +1,16 @@
 certifi==2024.2.2
 charset-normalizer==3.3.2
-example==0.1.dev0
 idna==3.7
 lxml==5.2.2
+numpy==1.24.4
+pandas==2.0.3
+python-dateutil==2.9.0.post0
 python-docx==1.1.2
 python-dotenv==1.0.1
+pytz==2024.1
 requests==2.31.0
+six==1.16.0
 typing_extensions==4.11.0
--e git+https://github.com/josefdeutsch/udacity-capstone-python.git@f2897c52fa94545ebbd9659704beb39cac95f45e#egg=Udacity_capstone_python
+tzdata==2024.1
+Udacity-capstone-python==0.1
 urllib3==2.2.1
