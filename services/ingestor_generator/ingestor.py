@@ -1,3 +1,4 @@
+import os
 from typing import List
 from dotenv import load_dotenv
 from services.ingestor_generator.models.CSVIngestor import CSVIngestor
@@ -17,7 +18,6 @@ class Ingestor:
         raise ValueError(f"No ingestor available for file {path}")
 
 def main():
-    load_dotenv()
     quote_files = [
         '/Users/Joseph/udacity-capstone-python/python-structure-template/data_private/res/quotes/DogQuotesCSV.csv',
         '/Users/Joseph/udacity-capstone-python/python-structure-template/data_private/res/quotes/DogQuotesDOCX.docx',

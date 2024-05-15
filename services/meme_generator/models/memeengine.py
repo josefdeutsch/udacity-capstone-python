@@ -17,18 +17,29 @@ class MemeEngine:
                 draw = ImageDraw.Draw(img)
                 # Navigate up two levels from the script location
                
-                current_dir = os.path.dirname(__file__)  # Gets the directory where the script is located
-                base_dir = os.path.join(current_dir, '..', '..', '..')  # Moves up three directories
-                base_dir = os.path.abspath(base_dir)  # Resolves to absolute path
-               
-                # Check if the font file exists, else use default font
-                font_path = os.path.join(base_dir, "data_private", "res", "font","open-sans/OpenSans-Regular.ttf")
+                # Load environment variables from .env file
+            
 
+            # Get the relative path from the environment variable
+            font_rel_dir = os.getenv('FONT_DIR')
+            # Get the environment variable
+            font = os.getenv('FONT')
+            
+            if not font_rel_dir:
+                print("FONT_PATH not set in .env file, using default font.")
+                font = ImageFont.load_default()  # Load default font early if path is not set
+            else:
+                # Assuming the script is run from a directory that requires navigating up to the project root
+                current_dir = os.path.dirname(os.path.realpath(__file__))
+                project_root = os.path.join(current_dir, '..', '..', '..')  # Adjust based on your project's structure
+                font_path = os.path.join(project_root, font_rel_dir, font)
+            
+                # Check if the font file exists, else use default font
                 if os.path.exists(font_path):
                     font_size = int(height * 0.05)
                     font = ImageFont.truetype(font_path, font_size)
                 else:
-                    print("Font not found, using default font")
+                    print("Specified font not found, using default font")
                     font = ImageFont.load_default()
 
                 # Calculate text size using the bounding box

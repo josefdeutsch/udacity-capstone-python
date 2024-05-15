@@ -2,6 +2,8 @@ import os
 import random
 from argparse import ArgumentParser
 
+from dotenv import load_dotenv
+
 from services.ingestor_generator.base.QuoteModel import QuoteModel
 from services.ingestor_generator.ingestor import Ingestor
 from services.meme_generator.models.MemeEngine import MemeEngine
@@ -16,9 +18,13 @@ def generate_meme(path=None, body=None, author=None):
     base_dir = os.path.join(current_dir, '..', '..')  # Moves up two directories
     base_dir = os.path.abspath(base_dir)  # Resolves to absolute path
 
+    # Get the relative path from the environment variable
+    images_dir = os.getenv('IMG_DIR')
+    quotes_dir = os.getenv('QUOTES_DIR')
+
     # Determine the directories for images and quotes
-    images_dir = os.path.join(base_dir, "data_private", "res", "img")
-    quotes_dir = os.path.join(base_dir, "data_private", "res", "quotes")
+    images_dir = os.path.join(base_dir, images_dir)
+    quotes_dir = os.path.join(base_dir, quotes_dir)
 
     # Select a random image if no path is provided
     if path is None:
@@ -53,6 +59,8 @@ def generate_meme(path=None, body=None, author=None):
     return meme_path
 
 def main():
+    load_dotenv(override=True)
+
     parser = ArgumentParser(description="Meme Generator CLI")
     parser.add_argument('--path', type=str, help='Path to an image file', default=None)
     parser.add_argument('--body', type=str, help='Quote body to add to the image', default=None)
