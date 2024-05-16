@@ -3,51 +3,53 @@ import subprocess
 from typing import List
 from services.ingestor_generator.base.QuoteModel import QuoteModel
 from services.ingestor_generator.base.IngestorInterface import IngestorInterface
+from util.Util import check_file_path  # Ensure this path is correct
 
 class PDFIngestor(IngestorInterface):
     allowed_extensions = ['pdf']
 
+    # Path to the directory where the script is located
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+
+    # Path to the root of the ingestor_generator
+    root_dir = os.path.dirname(script_dir)
+
+    # Path to the default.txt file
+    default_path = os.path.join(root_dir, 'res', 'quotes', 'default.pdf')
+    
     @classmethod
     def can_ingest(cls, path: str) -> bool:
-        ext = path.split('.')[-1].lower()  # Ensure the check is case-insensitive
-        return ext in cls.allowed_extensions
+        return path.split('.')[-1].lower() in cls.allowed_extensions
 
     @classmethod
     def parse(cls, path: str) -> List[QuoteModel]:
         if not cls.can_ingest(path):
-            raise ValueError(f"Cannot ingest given file extension, allowed extensions are: {cls.allowed_extensions}")
-
-        temp_txt = '/tmp/temp_file.txt'  # Temporary file to store the text output
+            raise ValueError("Cannot ingest given file extension, allowed extensions are: {}".format(cls.allowed_extensions))
+        
+        path = check_file_path(path, cls.default_path)
+        temp_txt = '/tmp/temp_file.txt'
+        
         try:
-            # Using subprocess to call pdftotext and convert PDF to text
+            # Attempt to convert PDF to text using pdftotext
             subprocess.run(['/Applications/xpdf/bin64/pdftotext', '-layout', path, temp_txt], check=True)
-
             quotes = []
-            # Reading from the temporary text file
             with open(temp_txt, 'r', encoding='utf-8') as file:
                 for line in file:
                     line = line.strip()
                     if line:
-                        # Assuming each line contains a quote and its author in the format: "quote" - author
                         parts = line.split(' - ')
                         if len(parts) == 2:
                             quote, author = parts
                             quotes.append(QuoteModel(quote.strip(), author.strip()))
+        except Exception as e:
+            # Handle exceptions related to file processing or subprocess execution
+            print(f"Failed to process PDF file: {e}")
+            return []  # Return an empty list or handle differently based on your application needs
         finally:
-            # Ensure the temporary file is deleted
-            os.remove(temp_txt)
+            # Clean up by ensuring the temporary file is removed
+            if os.path.exists(temp_txt):
+                os.remove(temp_txt)
         
         return quotes
 
-# Example usage:
-# Assuming a PDF file 'example.pdf' exists and contains quotes in the assumed format.
-# quotes = PDFIngestor.parse('/path/to/example.pdf')
-# for quote in quotes:
-#     print(f"{quote.text} by {quote.author}")
-
-# Example usage:
-# Assuming a PDF file 'example.pdf' exists and contains quotes in the assumed format.
-# quotes = PDFIngestor.parse('/path/to/example.pdf')
-# for quote in quotes:
-#     print(f"{quote.text} by {quote.author}")
-
+# Usage example remains the same
