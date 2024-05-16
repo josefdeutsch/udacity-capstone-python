@@ -2,12 +2,25 @@ from PIL import Image, ImageDraw, ImageFont
 import os
 import random
 
+from util.Util import check_file_path
+
 class MemeEngine:
+
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+
+    root_dir = os.path.dirname(script_dir)
+
+    default_path = os.path.join(root_dir, 'res', 'img', 'default.jpg')
+
     def __init__(self, output_dir):
         self.output_dir = output_dir
         os.makedirs(self.output_dir, exist_ok=True)
 
     def make_meme(self, img_path, text, author, width=500) -> str:
+        
+        img_path = check_file_path(img_path, self.default_path)
+        print(img_path)
+       
         try:
             with Image.open(img_path) as img:
                 ratio = width / float(img.size[0])

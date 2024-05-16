@@ -52,10 +52,9 @@ def generate_meme(path=None, body=None, author=None):
         if author is None:
             raise Exception('Author Required if Body is Used')
         quote = QuoteModel(body, author)
-
     # Generate the meme using the MemeEngine class
     meme = MemeEngine(os.path.join('tmp'))
-    meme_path = meme.make_meme(img, quote.body, quote.author) if img and quote else "No meme generated."
+    meme_path = meme.make_meme(img, quote.body, quote.author)
     return meme_path
 
 def main():
