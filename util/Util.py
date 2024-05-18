@@ -39,3 +39,20 @@ def get_font(font_path: str, height: int) -> ImageFont.FreeTypeFont:
     else:
         font_size = int(height * 0.05)  # Calculate the font size as 5% of the given height
         return ImageFont.truetype(font_path, font_size)
+
+
+def retrieve_file_path(self, category, file_name):
+    """
+    Get the full path of a file given its category and name.
+    :param category: str - Category of the file ('fonts', 'quotes', 'images', 'default')
+    :param file_name: str - Name of the file
+    :return: str - Full path to the file
+    """
+    path = self.paths.get(category)
+    if path is None:
+        raise ValueError(f"Category '{category}' not found in paths.")
+    
+    if file_name not in self.files.get(category, []):
+        raise ValueError(f"File '{file_name}' not found in files under category '{category}'.")
+    
+    return f"{path}/{file_name}"

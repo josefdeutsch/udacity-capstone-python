@@ -2,6 +2,7 @@ import csv
 import os
 from typing import List
 
+from config import load_config
 from services.ingestor_generator.base.IngestorInterface import IngestorInterface
 from services.ingestor_generator.base.QuoteModel import QuoteModel
 
@@ -12,6 +13,14 @@ from util.Util import check_file_path
 
 class CSVIngestor(IngestorInterface):
     allowed_extensions = ['csv']
+   
+   # Load the configuration data
+    config = load_config()
+
+    # Access 'default.csv' file and 'fallback' path under 'quotes' section
+    default_csv_file = config.get('quotes', {}).get('fallback', {}).get('files', []).get('default.csv')
+    fallback_path = config.get('quotes', {}).get('fallback', {}).get('path')
+    
     # Path to the directory where the script is located
     script_dir = os.path.dirname(os.path.abspath(__file__))
 

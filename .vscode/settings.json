@@ -5,6 +5,7 @@
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
     "python.analysis.extraPaths": [
-        "./services/ingestor_generator/models"
+        "./services/ingestor_generator/models",
+        "./util"
     ]
 }
