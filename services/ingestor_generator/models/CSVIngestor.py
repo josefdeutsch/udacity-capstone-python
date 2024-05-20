@@ -1,56 +1,51 @@
-import csv
 import os
 from typing import List
-
-from config import load_config
+from util.Util import get_default_cache, is_path
 from services.ingestor_generator.base.IngestorInterface import IngestorInterface
 from services.ingestor_generator.base.QuoteModel import QuoteModel
-
 import pandas as pd
 from typing import List
 
-from util.Util import check_file_path
 
 class CSVIngestor(IngestorInterface):
+    """
+    An ingestor class to parse quotes from CSV files.
+
+    This class inherits from the IngestorInterface and implements the
+    parse method to read quotes from CSV files.
+    """
     allowed_extensions = ['csv']
    
-   # Load the configuration data
-    config = load_config()
-
-    # Access 'default.csv' file and 'fallback' path under 'quotes' section
-    default_csv_file = config.get('quotes', {}).get('fallback', {}).get('files', []).get('default.csv')
-    fallback_path = config.get('quotes', {}).get('fallback', {}).get('path')
-    
-    # Path to the directory where the script is located
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-
-    # Path to the root of the ingestor_generator
-    root_dir = os.path.dirname(script_dir)
-
-    # Path to the default.txt file
-    default_path = os.path.join(root_dir, 'res', 'quotes', 'default.txt')
-
-   # @classmethod
-   # def parse(cls, path: str) -> List[QuoteModel]:
-   #     quotes = []
-   #     data = pd.read_csv(path)
-   #     for _, row in data.iterrows():
-   #         new_quote = QuoteModel(body=row['body'], author=row['author'])
-   #        quotes.append(new_quote)
-   #     return quotes
 
     @classmethod
     def parse(cls, path: str) -> List[QuoteModel]:
-            quotes = []
-            # Use the utility function to check the file path
-            path = check_file_path(path, cls.default_path)
-            try:
-                data = pd.read_csv(path)
-                for _, row in data.iterrows():
-                    new_quote = QuoteModel(body=row['body'], author=row['author'])
-                    quotes.append(new_quote)
-            except pd.errors.EmptyDataError:
-                print("Warning: The CSV file is empty.")
-            except Exception as e:
-                print(f"An error occurred: {e}")
-            return quotes
+        
+        """
+        Parse quotes from a CSV file and return a list of QuoteModel instances.
+
+        This method reads a CSV file specified by the given path, extracts
+        quote data, and returns a list of QuoteModel instances representing
+        the quotes. If the CSV file is empty, a warning message is printed.
+        In case of other errors, an error message is printed.
+
+        Args:
+            path (str): The file path to the CSV file containing the quotes.
+
+        Returns:
+            List[QuoteModel]: A list of QuoteModel instances parsed from the CSV file.
+        """
+        
+        quotes = []
+        # Use the utility function to check and adjust the file path
+        path = is_path(path, get_default_cache('default','default.csv'))
+        try:
+            data = pd.read_csv(path)
+            for _, row in data.iterrows():
+                new_quote = QuoteModel(body=row['body'], author=row['author'])
+                quotes.append(new_quote)
+        except pd.errors.EmptyDataError:
+            print("Warning: The CSV file is empty.")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+        return quotes
+    

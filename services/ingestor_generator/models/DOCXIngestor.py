@@ -4,24 +4,38 @@ from docx import Document
 
 from services.ingestor_generator.base.IngestorInterface import IngestorInterface
 from services.ingestor_generator.base.QuoteModel import QuoteModel
-from util.Util import check_file_path
+from util.Util import get_default_cache, is_path 
 
 
 class DOCXIngestor(IngestorInterface):
+    """
+    An ingestor class to parse quotes from DOCX files.
+
+    This class inherits from the IngestorInterface and implements the
+    parse method to read quotes from DOCX files.
+    """
     allowed_extensions = ['docx']
-      # Path to the directory where the script is located
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-
-    # Path to the root of the ingestor_generator
-    root_dir = os.path.dirname(script_dir)
-
-    # Path to the default.txt file
-    default_path = os.path.join(root_dir, 'res', 'quotes', 'default.docx')
 
     @classmethod
     def parse(cls, path: str) -> List[QuoteModel]:
+        """
+        Parse quotes from a DOCX file and return a list of QuoteModel instances.
+
+        This method reads a DOCX file specified by the given path, extracts
+        quote data, and returns a list of QuoteModel instances representing
+        the quotes. Each paragraph in the DOCX file is expected to contain
+        a quote in the format "body - author". If an error occurs during
+        parsing, an error message is printed.
+
+        Args:
+            path (str): The file path to the DOCX file containing the quotes.
+
+        Returns:
+            List[QuoteModel]: A list of QuoteModel instances parsed from the DOCX file.
+        """
         quotes = []
-        path = check_file_path(path, cls.default_path)  # Use the utility function to check and adjust the file path
+        # Use the utility function to check and adjust the file path
+        path = is_path(path, get_default_cache('default','default.docx')) 
         try:
             doc = Document(path)
             for para in doc.paragraphs:

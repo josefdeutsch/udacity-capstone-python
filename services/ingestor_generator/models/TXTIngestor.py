@@ -1,25 +1,36 @@
-import os
 from typing import List
 from services.ingestor_generator.base.IngestorInterface import IngestorInterface
 from services.ingestor_generator.base.QuoteModel import QuoteModel
-from util.Util import check_file_path
+from util.Util import get_default_cache, is_path 
 
 class TXTIngestor(IngestorInterface):
+    """
+    An ingestor class to parse quotes from TXT files.
+
+    This class inherits from the IngestorInterface and implements the
+    parse method to read quotes from TXT files.
+    """
     allowed_extensions = ['txt']
-
-    # Path to the directory where the script is located
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-
-    # Path to the root of the ingestor_generator
-    root_dir = os.path.dirname(script_dir)
-
-    # Path to the default.txt file
-    default_path = os.path.join(root_dir, 'res', 'quotes', 'default.txt')
 
     @classmethod
     def parse(cls, path: str) -> List[QuoteModel]:
-        path = check_file_path(path, cls.default_path)  # Use the utility function to adjust the file path
+        """
+        Parse quotes from a text file and return a list of QuoteModel instances.
 
+        This method reads a text file specified by the given path, extracts
+        quote data, and returns a list of QuoteModel instances representing
+        the quotes. Each line in the text file is expected to contain a quote
+        in the format "quote - author". If an error occurs during file reading,
+        an error message is printed and an empty list is returned.
+
+        Args:
+            path (str): The file path to the text file containing the quotes.
+
+        Returns:
+            List[QuoteModel]: A list of QuoteModel instances parsed from the text file.
+        """
+        # Use the utility function to check and adjust the file path
+        path = is_path(path, get_default_cache('default','default.txt')) 
         try:
             quotes = []
             with open(path, 'r', encoding='utf-8') as file:  # Ensuring to handle encoding

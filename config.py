@@ -5,6 +5,7 @@ class Config:
     _instance = None
     _lock = Lock()
 
+
     def __new__(cls, json_file=None):
         if cls._instance is None:
             with cls._lock:
@@ -36,7 +37,7 @@ class Config:
 
             self.initialized = True
 
-    def retrieve_file_path(self, category, file_name):
+    def get_path(self, category, file_name):
 
         """
         Get the full path of a file given its category and name.
@@ -53,57 +54,58 @@ class Config:
         
         return f"{path}/{file_name}"
 
+
 def load_config(json_file):
     return Config(json_file)
 
 def main():
     # Load the configuration
     config = load_config('config/development.json')
-
+    print(config)
     # Example usage of accessing specific configuration details
-    default_csv_path = config.retrieve_file_path('default', 'default.csv')
+    default_csv_path = config.get_path('default', 'default.csv')
     print(default_csv_path)
 
     # Accessing additional files
-    default_docx_path = config.retrieve_file_path('default', 'default.docx')
+    default_docx_path = config.get_path('default', 'default.docx')
     print(default_docx_path)
 
-    default_pdf_path = config.retrieve_file_path('default', 'default.pdf')
+    default_pdf_path = config.get_path('default', 'default.pdf')
     print(default_pdf_path)
 
-    default_txt_path = config.retrieve_file_path('default', 'default.txt')
+    default_txt_path = config.get_path('default', 'default.txt')
     print(default_txt_path)
 
 
-    quote_file_path = config.retrieve_file_path('quotes', 'DogQuotesCSV.csv')
+    quote_file_path = config.get_path('quotes', 'DogQuotesCSV.csv')
     print(quote_file_path)
 
 
-    quote_file_path = config.retrieve_file_path('quotes', 'DogQuotesCSV.docx')
+    quote_file_path = config.get_path('quotes', 'DogQuotesCSV.docx')
     print(quote_file_path)
 
 
-    quote_file_path = config.retrieve_file_path('quotes', 'DogQuotesCSV.pdf')
+    quote_file_path = config.get_path('quotes', 'DogQuotesCSV.pdf')
     print(quote_file_path)
 
 
-    quote_file_path = config.retrieve_file_path('quotes', 'DogQuotesCSV.txt')
+    quote_file_path = config.get_path('quotes', 'DogQuotesCSV.txt')
     print(quote_file_path)
 
     # Accessing other files
-    font_file_path = config.retrieve_file_path('fonts', 'OpenSans-Bold.ttf')
+    font_file_path = config.get_path('fonts', 'OpenSans-Bold.ttf')
     print(font_file_path)
 
-    image_file_path = config.retrieve_file_path('images', 'xander_1.jpg')
+    image_file_path = config.get_path('images', 'xander_1.jpg')
     print(image_file_path)
 
-    xander_2_path = config.retrieve_file_path('images', 'xander_2.jpg')
+    xander_2_path = config.get_path('images', 'xander_2.jpg')
     print(xander_2_path)
 
-    xander_3_path = config.retrieve_file_path('images', 'xander_3.jpg')
+    xander_3_path = config.get_path('images', 'xander_3.jpg')
     print(xander_3_path)
 
-    xander_4_path = config.retrieve_file_path('images', 'xander_4.jpg')
+    xander_4_path = config.get_path('images', 'xander_4.jpg')
     print(xander_4_path)
 
 if __name__ == "__main__":

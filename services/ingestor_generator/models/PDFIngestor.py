@@ -3,30 +3,57 @@ import subprocess
 from typing import List
 from services.ingestor_generator.base.QuoteModel import QuoteModel
 from services.ingestor_generator.base.IngestorInterface import IngestorInterface
-from util.Util import check_file_path  # Ensure this path is correct
+from util.Util import get_default_cache, is_path   
 
 class PDFIngestor(IngestorInterface):
+    """
+    An ingestor class to parse quotes from PDF files.
+
+    This class inherits from the IngestorInterface and implements the
+    parse method to read quotes from PDF files.
+    """
     allowed_extensions = ['pdf']
-
-    # Path to the directory where the script is located
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-
-    # Path to the root of the ingestor_generator
-    root_dir = os.path.dirname(script_dir)
-
-    # Path to the default.txt file
-    default_path = os.path.join(root_dir, 'res', 'quotes', 'default.pdf')
     
     @classmethod
     def can_ingest(cls, path: str) -> bool:
+        """
+        Determine if the given file can be ingested based on its extension.
+
+        Args:
+            path (str): The file path to check.
+
+        Returns:
+            bool: True if the file extension is in the list of allowed extensions, False otherwise.
+        """
         return path.split('.')[-1].lower() in cls.allowed_extensions
 
     @classmethod
     def parse(cls, path: str) -> List[QuoteModel]:
+        """
+        Parse quotes from a PDF file and return a list of QuoteModel instances.
+
+        This method reads a PDF file specified by the given path, converts it to text,
+        extracts quote data, and returns a list of QuoteModel instances representing
+        the quotes. Each line in the PDF file is expected to contain a quote in the 
+        format "quote - author". If the file cannot be ingested due to an unsupported 
+        file extension, a ValueError is raised. If an error occurs during PDF processing,
+        an error message is printed and an empty list is returned.
+
+        Args:
+            path (str): The file path to the PDF file containing the quotes.
+
+        Returns:
+            List[QuoteModel]: A list of QuoteModel instances parsed from the PDF file.
+
+        Raises:
+            ValueError: If the file extension is not supported for ingestion.
+        """
         if not cls.can_ingest(path):
             raise ValueError("Cannot ingest given file extension, allowed extensions are: {}".format(cls.allowed_extensions))
-        
-        path = check_file_path(path, cls.default_path)
+       
+        # Use the utility function to check and adjust the file path
+        path = is_path(path, get_default_cache('default','default.pdf'))
+       
         temp_txt = '/tmp/temp_file.txt'
         
         try:
@@ -52,4 +79,3 @@ class PDFIngestor(IngestorInterface):
         
         return quotes
 
-# Usage example remains the same

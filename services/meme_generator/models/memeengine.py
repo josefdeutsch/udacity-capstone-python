@@ -2,7 +2,7 @@ from PIL import Image, ImageDraw, ImageFont
 import os
 import random
 
-from util.Util import check_file_path,get_font
+from util.Util import is_path ,get_font
 
 class MemeEngine:
 
@@ -18,7 +18,7 @@ class MemeEngine:
 
     def make_meme(self, img_path, text, author, width=500) -> str:
     
-        img_path = check_file_path(img_path, self.default_path)
+        img_path = is_path (img_path, self.default_path)
        
         try:
             with Image.open(img_path) as img:
