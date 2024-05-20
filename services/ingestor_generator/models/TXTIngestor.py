@@ -1,7 +1,7 @@
 from typing import List
 from services.ingestor_generator.base.IngestorInterface import IngestorInterface
 from services.ingestor_generator.base.QuoteModel import QuoteModel
-from util.Util import get_default_cache, is_path 
+from util.Util import get_file, is_path 
 
 class TXTIngestor(IngestorInterface):
     """
@@ -30,7 +30,7 @@ class TXTIngestor(IngestorInterface):
             List[QuoteModel]: A list of QuoteModel instances parsed from the text file.
         """
         # Use the utility function to check and adjust the file path
-        path = is_path(path, get_default_cache('default','default.txt')) 
+        path = is_path(path, get_file('default','default.txt')) 
         try:
             quotes = []
             with open(path, 'r', encoding='utf-8') as file:  # Ensuring to handle encoding

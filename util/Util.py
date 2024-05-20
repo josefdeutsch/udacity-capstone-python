@@ -1,5 +1,5 @@
 import os
-from PIL import Image, ImageDraw, ImageFont
+from PIL import ImageFont
 from config import load_config
 
 def is_path(path: str, default_path: str) -> str:
@@ -79,7 +79,7 @@ def find_project_root(starting_directory: str, marker: str = ".git") -> str:
 
 
    
-def get_default_cache(category: str, file_name: str) -> str:
+def get_file(category: str, file_name: str) -> str:
         """
         Retrieve the default cache path for a given category and file name.
 
@@ -100,7 +100,7 @@ def get_default_cache(category: str, file_name: str) -> str:
         """
         try:
             root_path = find_project_root(os.getcwd())
-            config = load_config_dev(root_path,'config/development.json')
+            config = load_config_dev(root_path)
             cache_path = config.get_path(category, file_name)
             return os.path.join(root_path, cache_path)
         except ValueError:
@@ -108,9 +108,7 @@ def get_default_cache(category: str, file_name: str) -> str:
             return None
 
 
-import os
-
-def load_config_dev(root_path: str, config_path: str):
+def load_config_dev(root_path: str, config_path='config/development.json'):
     """
     Load the configuration file from the specified root and config paths.
 

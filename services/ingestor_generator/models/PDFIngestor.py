@@ -3,7 +3,7 @@ import subprocess
 from typing import List
 from services.ingestor_generator.base.QuoteModel import QuoteModel
 from services.ingestor_generator.base.IngestorInterface import IngestorInterface
-from util.Util import get_default_cache, is_path   
+from util.Util import get_file, is_path   
 
 class PDFIngestor(IngestorInterface):
     """
@@ -52,7 +52,7 @@ class PDFIngestor(IngestorInterface):
             raise ValueError("Cannot ingest given file extension, allowed extensions are: {}".format(cls.allowed_extensions))
        
         # Use the utility function to check and adjust the file path
-        path = is_path(path, get_default_cache('default','default.pdf'))
+        path = is_path(path, get_file('default','default.pdf'))
        
         temp_txt = '/tmp/temp_file.txt'
         

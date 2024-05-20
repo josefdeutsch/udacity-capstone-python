@@ -1,53 +1,53 @@
-import pytest
-import csv
-import json
-from io import StringIO
-from typing import List, Callable, Dict
+import unittest
+import os
+from config import load_config
 
-# Redefine the strategy functions with slight modifications for inline testing
-def parse_csv(content: str) -> List[Dict[str, str]]:
-    reader = csv.DictReader(StringIO(content))
-    return [row for row in reader]
+class TestDevelopmentConfiguration(unittest.TestCase):
 
-def parse_json(content: str) -> List[Dict[str, int]]:
-    return json.loads(content)
+    @classmethod
+    def setUpClass(cls):
+        cls.test_json_file = '/Users/Joseph/udacity-capstone-python/python-structure-template/config/test.json'
+        
+        # Ensuring the file exists before running tests
+        if not os.path.exists(cls.test_json_file):
+            raise FileNotFoundError(f"The test configuration file '{cls.test_json_file}' was not found.")
 
-# Mapping of file content to parsing functions (simulating paths with content directly)
-parsers: Dict[str, Callable[[str], List[Dict]]] = {
-    'csv': parse_csv,
-    'json': parse_json,
-}
+    def test_singleton_behavior(self):
+        config1 = load_config(self.test_json_file)
+        config2 = load_config(self.test_json_file)
+        self.assertIs(config1, config2)
 
-# Function to simulate processing of file content directly
-def process_content(file_type: str, content: str) -> List[Dict]:
-    if file_type in parsers:
-        parser_function = parsers[file_type]
-        return parser_function(content)
-    else:
-        raise ValueError(f"Unsupported file type for file_type: {file_type}")
+    def test_metadata(self):
+        config = load_config(self.test_json_file)
+        self.assertEqual(config.metadata['title'], 'Test Configuration')
+        self.assertEqual(config.metadata['version'], '1.0.0')
 
-# Test functions
-def test_parse_csv():
-    csv_content = "name,age\nAlice,30\nBob,25"
-    assert parse_csv(csv_content) == [{'name': 'Alice', 'age': '30'}, {'name': 'Bob', 'age': '25'}]
+    def test_database_config(self):
+        config = load_config(self.test_json_file)
+        self.assertEqual(config.database['host'], 'localhost')
+        self.assertEqual(config.database['port'], 5432)
 
-def test_parse_json():
-    json_content = '[{"name": "Alice", "age": 30}, {"name": "Bob", "age": 25}]'
-    assert parse_json(json_content) == [{'name': 'Alice', 'age': 30}, {'name': 'Bob', 'age': 25}]
+    def test_logging_config(self):
+        config = load_config(self.test_json_file)
+        self.assertEqual(config.logging['level'], 'DEBUG')
+        self.assertEqual(config.logging['file']['path'], 'logs/development.log')
 
-def test_process_content_csv():
-    csv_content = "name,age\nAlice,30\nBob,25"
-    assert process_content('csv', csv_content) == [{'name': 'Alice', 'age': '30'}, {'name': 'Bob', 'age': '25'}]
+    def test_get_path(self):
+        config = load_config(self.test_json_file)
+        self.assertEqual(config.get_path('fonts', 'OpenSans-Bold.ttf'), 'tests/res/font/open-sans/OpenSans-Bold.ttf')
+        self.assertEqual(config.get_path('quotes', 'SimpleLines.csv'), 'tests/res/quotes/SimpleLines.csv')
+        self.assertEqual(config.get_path('images', 'xander_1.jpg'), 'tests/res/img/xander_1.jpg')
+        self.assertEqual(config.get_path('default', 'default.csv'), 'tests/res/default/default.csv')
 
-def test_process_content_json():
-    json_content = '[{"name": "Alice", "age": 30}, {"name": "Bob", "age": 25}]'
-    assert process_content('json', json_content) == [{'name': 'Alice', 'age': 30}, {'name': 'Bob', 'age': 25}]
+    def test_get_path_invalid_category(self):
+        config = load_config(self.test_json_file)
+        with self.assertRaises(ValueError):
+            config.get_path('invalid_category', 'somefile.txt')
 
-def test_process_content_unsupported_type():
-    with pytest.raises(ValueError) as excinfo:
-        process_content('xml', '<data></data>')
-    assert 'Unsupported file type for file_type: xml' in str(excinfo.value)
+    def test_get_path_invalid_file(self):
+        config = load_config(self.test_json_file)
+        with self.assertRaises(ValueError):
+            config.get_path('fonts', 'nonexistentfile.ttf')
 
-# Run the pytest directly (useful for standalone scripts or demos)
-if __name__ == "__main__":
-    pytest.main()
+if __name__ == '__main__':
+    unittest.main()

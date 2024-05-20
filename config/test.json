@@ -1,0 +1,67 @@
+{
+    "metadata": {
+      "title": "Test Configuration",
+      "version": "1.0.0",
+      "description": "Configuration settings for development environment.",
+      "author": "Your Name",
+      "contact": "your.email@example.com",
+      "license": "MIT",
+      "keywords": ["development", "configuration", "settings"]
+    },
+    "config": {
+      "debug": true,
+      "database": {
+        "host": "localhost",
+        "port": 5432,
+        "username": "dev_user",
+        "password": "dev_pass",
+        "name": "dev_db"
+      },
+      "logging": {
+        "level": "DEBUG",
+        "handlers": ["console", "file"],
+        "file": {
+          "path": "logs/development.log",
+          "max_size": 10485760,
+          "backup_count": 5
+        }
+      },
+      "paths": {
+        "data": "tests/res",
+        "fonts": "tests/res/font/open-sans",
+        "quotes": "tests/res/quotes",
+        "images": "tests/res/img",
+        "default": "tests/res/default"
+      },
+      "files": {
+        "fonts": [
+          "OpenSans-Bold.ttf",
+          "OpenSans-BoldItalic.ttf",
+          "OpenSans-ExtraBold.ttf",
+          "OpenSans-Italic.ttf",
+          "OpenSans-Light.ttf",
+          "OpenSans-LightItalic.ttf",
+          "OpenSans-Regular.ttf",
+          "OpenSans-Semibold.ttf",
+          "OpenSans-SemiboldItalic.ttf"
+        ],
+        "quotes": [
+          "SimpleLines.csv",
+          "SimpleLines.docx",
+          "SimpleLines.pdf",
+          "SimpleLines.txt"
+        ],
+        "images": [
+          "xander_1.jpg"
+        ],
+        "default": [
+          "default.csv",
+          "default.docx",
+          "default.pdf",
+          "default.txt",
+          "default.jpg"
+        ]
+      }
+    }
+  }
+  

@@ -1,6 +1,6 @@
 import os
 from typing import List
-from dotenv import load_dotenv
+from util.Util import get_file
 from services.ingestor_generator.models.CSVIngestor import CSVIngestor
 from services.ingestor_generator.models.DOCXIngestor import DOCXIngestor
 from services.ingestor_generator.base.QuoteModel import QuoteModel
@@ -17,23 +17,27 @@ class Ingestor:
                 return ingestor.parse(path)
         raise ValueError(f"No ingestor available for file {path}")
 
+
 def main():
+
+    
     quote_files = [
-        '/Users/Joseph/udacity-capstone-python/python-structure-template/data_private/res/quotes/DogQuotesCSV.csv',
-        '/Users/Joseph/udacity-capstone-python/python-structure-template/data_private/res/quotes/DogQuotesDOCX.docx',
-        '/Users/Joseph/udacity-capstone-python/python-structure-template/data_private/res/quotes/DogQuotesPDF.pdf',
-        '/Users/Joseph/udacity-capstone-python/python-structure-template/data_private/res/quotes/DogQuotesTXT.txt'
-    ]
+            get_file('quotes','DogQuotesCSV.csv'), 
+            get_file('quotes','DogQuotesDOCX.docx'),
+            get_file('quotes','DogQuotesPDF.pdf'),
+            get_file('quotes','DogQuotesTXT.txt')
+        ]
+
 
     quotes = []
     for file_path in quote_files:
-        try:
+       try:
             quotes.extend(Ingestor.parse(file_path))
-        except ValueError as e:
+       except ValueError as e:
             print(e)
 
     for quote in quotes:
-        print(f'"{quote.body}" - {quote.author}')
+       print(f'"{quote.body}" - {quote.author}')
 
 if __name__ == "__main__":
     main()

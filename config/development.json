@@ -47,9 +47,9 @@
       ],
       "quotes": [
         "DogQuotesCSV.csv",
-        "DogQuotesCSV.docx",
-        "DogQuotesCSV.pdf",
-        "DogQuotesCSV.txt"
+        "DogQuotesDOCX.docx",
+        "DogQuotesPDF.pdf",
+        "DogQuotesTXT.txt"
       ],
       "images": [
         "xander_1.jpg",
