@@ -2,7 +2,7 @@ from PIL import Image, ImageDraw, ImageFont
 import os
 import random
 
-from util.Util import retrieve_file_path, get_valid_path ,load_font, check_against_hidden_files
+from util.Util import calculate_font_size, retrieve_file_path, get_valid_path ,load_font, check_against_hidden_files
 
 class MemeEngine:
 
@@ -15,6 +15,9 @@ class MemeEngine:
 
         # Default image path
         default_path = retrieve_file_path('default', 'default.jpg')
+
+        # Font path
+        font_path = retrieve_file_path('fonts','OpenSans-Regular.ttf')
 
         # Check if the img file exists, else use default img
         img_path = get_valid_path(img_path, default_path)
@@ -30,10 +33,15 @@ class MemeEngine:
                 height = int(ratio * img.size[1])
                 img = img.resize((width, height), Image.Resampling.LANCZOS)
                 # Check if the font file exists, else use default font
-                font = load_font(retrieve_file_path('fonts','OpenSans-Regular.ttf'),height)
+    
+                # Load the font
+                font = load_font(font_path)
+
+                # Get the custom font with appropriate size
+                font = calculate_font_size(font, font_path, height)
             
                 draw = ImageDraw.Draw(img)
-                # Navigate up two levels from the script location
+               
             
                 # Calculate text size using the bounding box
                 text_bbox = draw.textbbox((0, 0), text, font=font)

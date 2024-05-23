@@ -47,15 +47,13 @@ def check_against_hidden_files(file_path):
         return False
    
 
-def load_font(font_path: str, height: int) -> ImageFont.FreeTypeFont:
+def load_font(font_path: str) -> ImageFont.ImageFont:
     """
-    Checks if the font file at the given path exists, if the path is None, or if it's empty. 
-    If the path is invalid or the font file does not exist, returns a default font object.
-    Otherwise, returns the font object with size set to 5% of the provided height.
+    Checks if the font file at the given path exists. If the path is invalid or the font file does not exist,
+    returns a default font object.
 
-    :param font_path: The path to the font file to check. Can be None or an empty string.
-    :param height: The height of the area (e.g., image height) to base the font size on.
-    :return: An ImageFont object configured with the appropriate size.
+    :param font_path: The path to the font file to check.
+    :return: An ImageFont object.
     """
     if font_path is None or font_path == "" or not os.path.exists(font_path):
         if font_path is None or font_path == "":
@@ -64,8 +62,23 @@ def load_font(font_path: str, height: int) -> ImageFont.FreeTypeFont:
             print(f"Font not found at {font_path}, using default font.")
         return ImageFont.load_default()
     else:
+        return ImageFont.truetype(font_path)
+
+def calculate_font_size(font: ImageFont.ImageFont, font_path: str, height: int) -> ImageFont.FreeTypeFont:
+    """
+    If the font is not the default font, calculates the font size as 5% of the given height
+    and returns the appropriate font object.
+
+    :param font: The ImageFont object loaded from the font path.
+    :param font_path: The path to the font file.
+    :param height: The height of the area to base the font size on.
+    :return: An ImageFont object with the appropriate size.
+    """
+    if font != ImageFont.load_default():
         font_size = int(height * 0.05)  # Calculate the font size as 5% of the given height
         return ImageFont.truetype(font_path, font_size)
+    else:
+        return font
 
 
 
