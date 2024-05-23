@@ -1,8 +1,8 @@
 import os
-from PIL import ImageFont
+from PIL import Image, ImageDraw, ImageFont
 from config import load_config
 
-def is_path(path: str, default_path: str) -> str:
+def get_valid_path(path: str, default_path: str) -> str:
     """
     Check if the file at the given path exists. If the path is None, empty, 
     or if the file does not exist, returns the default path.
@@ -24,9 +24,30 @@ def is_path(path: str, default_path: str) -> str:
     return path
 
 
+def check_against_hidden_files(file_path):
+    """
+    Check if the provided file path is a valid image file and not a hidden file.
     
+    Args:
+        file_path (str): The path to the file.
+    
+    Returns:
+        bool: True if the file is a valid image and not a hidden file, False otherwise.
+    """
+    # Check if the file is hidden
+    if os.path.basename(file_path).startswith('.'):
+        return False
+    
+    # Check if the file is a valid image
+    try:
+        with Image.open(file_path) as img:
+            img.verify()
+        return True
+    except (IOError, SyntaxError) as e:
+        return False
+   
 
-def get_font(font_path: str, height: int) -> ImageFont.FreeTypeFont:
+def load_font(font_path: str, height: int) -> ImageFont.FreeTypeFont:
     """
     Checks if the font file at the given path exists, if the path is None, or if it's empty. 
     If the path is invalid or the font file does not exist, returns a default font object.
@@ -48,7 +69,7 @@ def get_font(font_path: str, height: int) -> ImageFont.FreeTypeFont:
 
 
 
-def find_project_root(starting_directory: str, marker: str = ".git") -> str:
+def locate_project_root(starting_directory: str, marker: str = ".git") -> str:
     """
     Find the project root directory containing the specified marker.
 
@@ -79,7 +100,7 @@ def find_project_root(starting_directory: str, marker: str = ".git") -> str:
 
 
    
-def get_file(category: str, file_name: str) -> str:
+def retrieve_file_path(category: str, file_name: str) -> str:
         """
         Retrieve the default cache path for a given category and file name.
 
@@ -99,8 +120,8 @@ def get_file(category: str, file_name: str) -> str:
         ValueError: If the configuration path is invalid.
         """
         try:
-            root_path = find_project_root(os.getcwd())
-            config = load_config_dev(root_path)
+            root_path = locate_project_root(os.getcwd())
+            config = load_development_config(root_path)
             cache_path = config.get_path(category, file_name)
             return os.path.join(root_path, cache_path)
         except ValueError:
@@ -108,7 +129,7 @@ def get_file(category: str, file_name: str) -> str:
             return None
 
 
-def load_config_dev(root_path: str, config_path='config/development.json'):
+def load_development_config(root_path: str, config_path='config/development.json'):
     """
     Load the configuration file from the specified root and config paths.
 

@@ -1,6 +1,6 @@
 import os
 from typing import List
-from util.Util import get_file
+from util.Util import retrieve_file_path
 from services.ingestor_generator.models.CSVIngestor import CSVIngestor
 from services.ingestor_generator.models.DOCXIngestor import DOCXIngestor
 from services.ingestor_generator.base.QuoteModel import QuoteModel
@@ -22,10 +22,10 @@ def main():
 
     
     quote_files = [
-            get_file('quotes','DogQuotesCSV.csv'), 
-            get_file('quotes','DogQuotesDOCX.docx'),
-            get_file('quotes','DogQuotesPDF.pdf'),
-            get_file('quotes','DogQuotesTXT.txt')
+            retrieve_file_path('quotes','DogQuotesCSV.csv'), 
+            retrieve_file_path('quotes','DogQuotesDOCX.docx'),
+            retrieve_file_path('quotes','DogQuotesPDF.pdf'),
+            retrieve_file_path('quotes','DogQuotesTXT.txt')
         ]
 
 

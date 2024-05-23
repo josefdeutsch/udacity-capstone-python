@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 from services.ingestor_generator.base.QuoteModel import QuoteModel
 from services.ingestor_generator.ingestor import Ingestor
-from services.meme_generator.models.MemeEngine import MemeEngine
+from services.meme_generator.models.memeengine import MemeEngine
 
 def generate_meme(path=None, body=None, author=None):
     """Generate a meme given a path and a quote."""
