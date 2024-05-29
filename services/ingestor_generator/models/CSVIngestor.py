@@ -1,6 +1,6 @@
 import os
 from typing import List
-from util.Util import retrieve_file_path, get_valid_path
+from util.Utils import Utils
 from services.ingestor_generator.base.IngestorInterface import IngestorInterface
 from services.ingestor_generator.base.QuoteModel import QuoteModel
 import pandas as pd
@@ -37,7 +37,7 @@ class CSVIngestor(IngestorInterface):
         
         quotes = []
         # Use the utility function to check and adjust the file path
-        path = get_valid_path(path, retrieve_file_path('default','default.csv'))
+        path = Utils.get_valid_path(path, Utils.retrieve_file_path('default','default.csv'))
         try:
             data = pd.read_csv(path)
             for _, row in data.iterrows():

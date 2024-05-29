@@ -4,7 +4,7 @@ from docx import Document
 
 from services.ingestor_generator.base.IngestorInterface import IngestorInterface
 from services.ingestor_generator.base.QuoteModel import QuoteModel
-from util.Util import retrieve_file_path, get_valid_path 
+from util.Utils import Utils
 
 
 class DOCXIngestor(IngestorInterface):
@@ -35,7 +35,7 @@ class DOCXIngestor(IngestorInterface):
         """
         quotes = []
         # Use the utility function to check and adjust the file path
-        path = get_valid_path(path, retrieve_file_path('default','default.docx')) 
+        path = Utils.get_valid_path(path, Utils.retrieve_file_path('default','default.docx')) 
         try:
             doc = Document(path)
             for para in doc.paragraphs:

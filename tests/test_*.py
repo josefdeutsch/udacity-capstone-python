@@ -34,20 +34,20 @@ class TestDevelopmentConfiguration(unittest.TestCase):
 
     def test_get_path(self):
         config = load_config(self.test_json_file)
-        self.assertEqual(config.get_path('fonts', 'OpenSans-Bold.ttf'), 'tests/res/font/open-sans/OpenSans-Bold.ttf')
-        self.assertEqual(config.get_path('quotes', 'SimpleLines.csv'), 'tests/res/quotes/SimpleLines.csv')
-        self.assertEqual(config.get_path('images', 'xander_1.jpg'), 'tests/res/img/xander_1.jpg')
-        self.assertEqual(config.get_path('default', 'default.csv'), 'tests/res/default/default.csv')
+        self.assertEqual(config.get_file_path('fonts', 'OpenSans-Bold.ttf'), 'tests/res/font/open-sans/OpenSans-Bold.ttf')
+        self.assertEqual(config.get_file_path('quotes', 'SimpleLines.csv'), 'tests/res/quotes/SimpleLines.csv')
+        self.assertEqual(config.get_file_path('images', 'xander_1.jpg'), 'tests/res/img/xander_1.jpg')
+        self.assertEqual(config.get_file_path('default', 'default.csv'), 'tests/res/default/default.csv')
 
     def test_get_path_invalid_category(self):
         config = load_config(self.test_json_file)
         with self.assertRaises(ValueError):
-            config.get_path('invalid_category', 'somefile.txt')
+            config.get_file_path('invalid_category', 'somefile.txt')
 
     def test_get_path_invalid_file(self):
         config = load_config(self.test_json_file)
         with self.assertRaises(ValueError):
-            config.get_path('fonts', 'nonexistentfile.ttf')
+            config.get_file_path('fonts', 'nonexistentfile.ttf')
 
 if __name__ == '__main__':
     unittest.main()

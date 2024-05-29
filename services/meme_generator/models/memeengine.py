@@ -1,11 +1,24 @@
-from PIL import Image, ImageDraw, ImageFont
+"""
+This module contains the MemeEngine class which is responsible for generating memes.
+It allows the user to specify an image, text, and author, and saves the generated meme to the specified output directory.
+
+Classes:
+    MemeEngine: A class to create memes with a given image, text, and author.
+"""
+
+from PIL import Image, ImageDraw
 import os
 import random
+from util.Utils import Utils
 
-from util.Util import calculate_font_size, retrieve_file_path, get_valid_path ,load_font, check_against_hidden_files
+class ImageCaptioner:
 
-class MemeEngine:
-
+    """
+    A class to create memes with a given image, text, and author.
+    
+    Attributes:
+        output_dir (str): The directory where the generated memes will be saved.
+    """
 
     def __init__(self, output_dir):
         self.output_dir = output_dir
@@ -14,16 +27,16 @@ class MemeEngine:
     def make_meme(self, img_path, text, author, width=500) -> str:
 
         # Default image path
-        default_path = retrieve_file_path('default', 'default.jpg')
+        default_path = Utils.retrieve_file_path('default', 'default.jpg')
 
         # Font path
-        font_path = retrieve_file_path('fonts','OpenSans-Regular.ttf')
+        font_path = Utils.retrieve_file_path('fonts','OpenSans-Regular.ttf')
 
         # Check if the img file exists, else use default img
-        img_path = get_valid_path(img_path, default_path)
+        img_path = Utils.get_valid_path(img_path, default_path)
 
            # Validate the image file
-        if not check_against_hidden_files(img_path):
+        if not Utils.check_against_hidden_files(img_path):
             print(f"Invalid or hidden image file detected and skipped: {img_path}")
             img_path = default_path
         
@@ -35,10 +48,10 @@ class MemeEngine:
                 # Check if the font file exists, else use default font
     
                 # Load the font
-                font = load_font(font_path)
+                font = Utils.load_font(font_path)
 
                 # Get the custom font with appropriate size
-                font = calculate_font_size(font, font_path, height)
+                font = Utils.calculate_font_size(font, font_path, height)
             
                 draw = ImageDraw.Draw(img)
                
@@ -66,7 +79,6 @@ class MemeEngine:
         except Exception as e:
             print(f"An error occurred: {e}")
             return ""
-
 
 
 
