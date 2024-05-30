@@ -52,7 +52,7 @@ class PDFIngestor(IngestorInterface):
             raise ValueError("Cannot ingest given file extension, allowed extensions are: {}".format(cls.allowed_extensions))
        
         # Use the utility function to check and adjust the file path
-        path = Utils.get_valid_path(path, Utils.retrieve_file_path('default','default.pdf'))
+        path = Utils.validate_image_path(path, Utils.retrieve_file_path('default','default.pdf'))
        
         temp_txt = '/tmp/temp_file.txt'
         

@@ -35,7 +35,7 @@ class DOCXIngestor(IngestorInterface):
         """
         quotes = []
         # Use the utility function to check and adjust the file path
-        path = Utils.get_valid_path(path, Utils.retrieve_file_path('default','default.docx')) 
+        path = Utils.validate_image_path(path, Utils.retrieve_file_path('default','default.docx')) 
         try:
             doc = Document(path)
             for para in doc.paragraphs:

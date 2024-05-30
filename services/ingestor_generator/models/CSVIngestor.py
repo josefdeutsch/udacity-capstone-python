@@ -37,7 +37,7 @@ class CSVIngestor(IngestorInterface):
         
         quotes = []
         # Use the utility function to check and adjust the file path
-        path = Utils.get_valid_path(path, Utils.retrieve_file_path('default','default.csv'))
+        path = Utils.validate_image_path(path, Utils.retrieve_file_path('default','default.csv'))
         try:
             data = pd.read_csv(path)
             for _, row in data.iterrows():

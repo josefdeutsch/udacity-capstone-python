@@ -6,10 +6,11 @@ Classes:
     MemeEngine: A class to create memes with a given image, text, and author.
 """
 
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 import os
 import random
 from util.Utils import Utils
+from PIL import Image
 
 class ImageCaptioner:
 
@@ -26,61 +27,75 @@ class ImageCaptioner:
 
     def make_meme(self, img_path, text, author, width=500) -> str:
 
-        # Default image path
+        """
+        Creates a meme by adding text and author to an image.
+
+        Args:
+        img_path (str): The file path to the input image.
+        text (str): The text to be added to the image.
+        author (str): The author of the text.
+        width (int): The desired width of the output image. Defaults to 500.
+
+         Returns:
+        str: The file path to the created meme image.
+        """
+
+        # Get the default image path
         default_path = Utils.retrieve_file_path('default', 'default.jpg')
 
-        # Font path
-        font_path = Utils.retrieve_file_path('fonts','OpenSans-Regular.ttf')
+        # Validate if the provided image path exists, otherwise use the default image
+        img_path = Utils.validate_image_path(img_path, default_path)
 
-        # Check if the img file exists, else use default img
-        img_path = Utils.get_valid_path(img_path, default_path)
+        # Resolve hidden files by checking if the image path is hidden
+        img_path = Utils.resolve_image_path(img_path, default_path)
 
-           # Validate the image file
-        if not Utils.check_against_hidden_files(img_path):
-            print(f"Invalid or hidden image file detected and skipped: {img_path}")
-            img_path = default_path
-        
+        # Get the font file path
+        font_path = Utils.retrieve_file_path('fonts', 'OpenSans-Regular.ttf')
+
+        # Load the font from the font file
+        font = Utils.load_font(font_path)
+
+        # Combine text and author 
+        full_text = f"{text} - {author}"
+
         try:
+
+            # Open the image using the provided or default image path
             with Image.open(img_path) as img:
+
+                # Calculate the aspect ratio and resize the image to the specified width    
                 ratio = width / float(img.size[0])
                 height = int(ratio * img.size[1])
                 img = img.resize((width, height), Image.Resampling.LANCZOS)
-                # Check if the font file exists, else use default font
-    
-                # Load the font
-                font = Utils.load_font(font_path)
 
-                # Get the custom font with appropriate size
-                font = Utils.calculate_font_size(font, font_path, height)
-            
+                # Adjust the font size to fit the text within the image height
+                font = Utils.calculate_font_size(font, full_text, height)
+
+                # Create a drawing context
                 draw = ImageDraw.Draw(img)
-               
-            
-                # Calculate text size using the bounding box
-                text_bbox = draw.textbbox((0, 0), text, font=font)
+
+                # Split the text into multiple lines to fit within the image width
+                split_text = Utils.split_text_into_lines(draw, full_text, font, width)
+
+                # Insert a line break at " - " to separate the body of the text from the author
+                result_text = Utils.format_text_with_line_breaks(split_text)
+
+                # Calculate the bounding box of the text to determine its size
+                text_bbox = draw.textbbox((0, 0), split_text, font=font)
                 text_width = text_bbox[2] - text_bbox[0]
                 text_height = text_bbox[3] - text_bbox[1]
 
-                text_x = random.randint(0, width - text_width)
-                text_y = random.randint(0, height - text_height)
-                draw.text((text_x, text_y), text, font=font, fill="white")
+                # Randomly position the text within the image boundaries
+                text_x = random.randint(0, max(0, width - text_width))
+                text_y = random.randint(0, max(0, height - text_height))
 
-                author_bbox = draw.textbbox((0, 0), f"- {author}", font=font)
-                author_width = author_bbox[2] - author_bbox[0]
-                author_height = author_bbox[3] - author_bbox[1]
+                # Draw the text onto the image with white color
+                draw.text((text_x, text_y), result_text, font=font, fill="white")
 
-                author_x = random.randint(0, width - author_width)
-                author_y = random.randint(0, height - author_height)
-                draw.text((author_x, author_y), f"- {author}", font=font, fill="white")
-                
+                # Save the created meme to the output directory with a random filename
                 out_path = os.path.join(self.output_dir, f"meme_{random.randint(0, 1000000)}.jpg")
                 img.save(out_path)
                 return out_path
         except Exception as e:
             print(f"An error occurred: {e}")
             return ""
-
-
-
-
-

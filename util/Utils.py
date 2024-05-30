@@ -5,7 +5,7 @@ from config import load_config
 class Utils:
 
     @staticmethod
-    def get_valid_path(path: str, default_path: str) -> str:
+    def validate_image_path(path: str, default_path: str) -> str:
         """
         Check if the file at the given path exists. If the path is None, empty, 
         or if the file does not exist, returns the default path.
@@ -27,27 +27,28 @@ class Utils:
         return path
 
     @staticmethod
-    def check_against_hidden_files(file_path):
+    def resolve_image_path(file_path, default_path) -> str:
         """
-        Check if the provided file path is a valid image file and not a hidden file.
-        
+        Resolve the provided file path by checking if it is a valid image file and not a hidden file.
+
         Args:
             file_path (str): The path to the file.
-        
+            default_path (str): The default path to return if the file_path is invalid.
+
         Returns:
-            bool: True if the file is a valid image and not a hidden file, False otherwise.
+            str: The file path if valid and not hidden, otherwise the default path.
         """
         # Check if the file is hidden
         if os.path.basename(file_path).startswith('.'):
-            return False
+            return default_path
         
         # Check if the file is a valid image
         try:
             with Image.open(file_path) as img:
                 img.verify()
-            return True
+            return file_path
         except (IOError, SyntaxError) as e:
-            return False
+            return default_path
    
     @staticmethod
     def load_font(font_path: str) -> ImageFont.ImageFont:
@@ -68,21 +69,97 @@ class Utils:
             return ImageFont.truetype(font_path)
 
     @staticmethod
-    def calculate_font_size(font: ImageFont.ImageFont, font_path: str, height: int) -> ImageFont.FreeTypeFont:
+    def calculate_font_size(font: ImageFont.ImageFont, text: str, height: int) -> ImageFont.FreeTypeFont:
         """
-        If the font is not the default font, calculates the font size as 5% of the given height
-        and returns the appropriate font object.
+        Adjust the font size based on the given font, text, and height.
 
-        :param font: The ImageFont object loaded from the font path.
-        :param font_path: The path to the font file.
-        :param height: The height of the area to base the font size on.
-        :return: An ImageFont object with the appropriate size.
+        The font size is determined by the length of the text.
+        The length is mapped to a font size using linear interpolation
+        to ensure smooth transitions within the range of 0 to 256.
+        If the default font is used, no adjustment is made.
+
+        Args:
+            font (ImageFont.ImageFont): The font object.
+            text (str): The text whose length is used to calculate the font size.
+            height (int): The height value used to calculate the font size.
+
+        Returns:
+            ImageFont.FreeTypeFont: The adjusted font object.
+            None: If an error occurs.
         """
-        if font != ImageFont.load_default():
-            font_size = int(height * 0.05)  # Calculate the font size as 5% of the given height
-            return ImageFont.truetype(font_path, font_size)
+        try:
+            # Check if the font is the default font
+            if font == ImageFont.load_default():
+                print("ImageFont not found, using default font.")
+                return font
+
+            text_length = len(text)
+
+            # Linear interpolation to determine the font size
+            if text_length <= 128:
+                font_size = height * (0.05 - (0.01 * (text_length / 128)))
+            elif text_length <= 256:
+                font_size = height * (0.04 - (0.01 * ((text_length - 128) / 128)))
+            else:
+                font_size = height * (0.03 - (0.01 * ((text_length - 256) / 256)))
+
+            print(f"Text length: {text_length}, Calculated font size: {font_size}")
+
+            font_path = font.path  # Assuming the font object has a 'path' attribute
+            return ImageFont.truetype(font_path, int(font_size))
+        except Exception as e:
+            print(f"Error occurred: {str(e)}")
+            return None
+        
+    @staticmethod
+    def split_text_into_lines(draw, text, font, max_width):
+        """
+        Splits the provided text into multiple lines to fit within the specified maximum width.
+
+        Args:
+            draw (ImageDraw.Draw): The ImageDraw object used to measure text size.
+            text (str): The text to be split into multiple lines.
+            font (ImageFont.FreeTypeFont): The font used to measure the text.
+            max_width (int): The maximum width allowed for each line.
+
+        Returns:
+            str: The input text split into multiple lines, separated by newline characters.
+        """
+        lines = []
+        words = text.split()
+        current_line = words.pop(0)
+
+        for word in words:
+            test_line = f"{current_line} {word}"
+            bbox = draw.textbbox((0, 0), test_line, font=font)
+            if bbox[2] <= max_width:
+                current_line = test_line
+            else:
+                lines.append(current_line)
+                current_line = word
+
+        lines.append(current_line)  # Add the last line
+        return '\n'.join(lines)    
+
+
+    @staticmethod
+    def format_text_with_line_breaks(full_text):
+        """
+        Splits the given text at " - " and joins the parts with a newline character, retaining the delimiter.
+        
+        Args:
+            full_text (str): The text containing a quote and an author separated by " - ".
+            
+        Returns:
+            str: The formatted text with the quote and author on separate lines, retaining the delimiter.
+        """
+        parts = full_text.split(" - ")
+        if len(parts) == 2:
+            formatted_text = f"{parts[0]}\n- {parts[1]}"
         else:
-            return font
+            formatted_text = full_text  # If the expected delimiter is not found, return the original text
+        return formatted_text
+
 
 
     @staticmethod
