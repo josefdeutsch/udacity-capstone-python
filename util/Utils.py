@@ -1,4 +1,5 @@
 import os
+import re
 from PIL import Image, ImageFont
 from config import load_config
 
@@ -160,7 +161,60 @@ class Utils:
             formatted_text = full_text  # If the expected delimiter is not found, return the original text
         return formatted_text
 
+    @staticmethod
+    def get_text_segments(formatted_text):
+        """
+        Splits the formatted text into segments and marks whether each segment is an author.
+        
+        Args:
+            formatted_text (str): The formatted text with quote and author on separate lines.
+            
+        Returns:
+            list of tuples: Each tuple contains a text line and a boolean indicating if it's the author.
+        """
+        lines = formatted_text.split('#')
+        return [(line, index == 1) for index, line in enumerate(lines)]
+    
+    @staticmethod
+    def prefix_string(text: str) -> str:
+        """
+        Prefixes the given string with a '#' if it does not already start with one.
 
+        Parameters:
+        text (str): The input string.
+
+        Returns:
+        str: The input string prefixed with a '#' if not already present.
+        """
+        if text.startswith('#'):
+            return text
+        return f"#{text}"
+    
+    @staticmethod
+    def remove_separators(input_string):
+        """
+        Remove all spaces, dots, underscores, or other separators from the input string.
+
+        Parameters:
+        input_string (str): The string from which separators will be removed.
+
+        Returns:
+        str: The input string with all separators removed.
+        """
+        return re.sub(r'[\s._]+', '', input_string)
+    
+    @staticmethod
+    def add_spaces(input_string):
+        """
+        Add a space between lowercase and uppercase letters in the input string.
+
+        Parameters:
+        input_string (str): The string in which spaces will be added between lowercase and uppercase letters.
+
+        Returns:
+        str: The modified string with spaces added between lowercase and uppercase letters.
+        """
+        return re.sub(r'([a-z])([A-Z])', r'\1 \2', input_string)
 
     @staticmethod
     def locate_project_root(starting_directory: str, marker: str = ".git") -> str:

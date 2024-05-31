@@ -50,13 +50,25 @@ class ImageCaptioner:
         img_path = Utils.resolve_image_path(img_path, default_path)
 
         # Get the font file path
-        font_path = Utils.retrieve_file_path('fonts', 'OpenSans-Regular.ttf')
+        font_path_body = Utils.retrieve_file_path('fonts', 'OpenSans-Regular.ttf')
 
         # Load the font from the font file
-        font = Utils.load_font(font_path)
+        font_body = Utils.load_font(font_path_body)
 
+        # Get the font file path
+        font_path_author = Utils.retrieve_file_path('fonts', 'OpenSans-ExtraBold.ttf')
+
+        # Load the font from the font file
+        font_author = Utils.load_font(font_path_author)
+
+        # Prefix author string
+        author = Utils.prefix_string(author)
+
+        # Remove spaces 
+        author = Utils.remove_separators(author)
+        
         # Combine text and author 
-        full_text = f"{text} - {author}"
+        full_text = f"{text}{author}"
 
         try:
 
@@ -69,28 +81,74 @@ class ImageCaptioner:
                 img = img.resize((width, height), Image.Resampling.LANCZOS)
 
                 # Adjust the font size to fit the text within the image height
-                font = Utils.calculate_font_size(font, full_text, height)
-
+                font_body_result = Utils.calculate_font_size(font_body, full_text, height)
+                
+                # Adjust the font size to fit the text within the image height
+                font_author_result = Utils.calculate_font_size(font_author, full_text, height)
+                
                 # Create a drawing context
                 draw = ImageDraw.Draw(img)
 
                 # Split the text into multiple lines to fit within the image width
-                split_text = Utils.split_text_into_lines(draw, full_text, font, width)
+                split_text = Utils.split_text_into_lines(draw, full_text, font_body_result, width)
 
-                # Insert a line break at " - " to separate the body of the text from the author
-                result_text = Utils.format_text_with_line_breaks(split_text)
+                # Insert a line break at "#" to separate the body of the text from the author
+                formatted_text = Utils.format_text_with_line_breaks(split_text)
 
-                # Calculate the bounding box of the text to determine its size
-                text_bbox = draw.textbbox((0, 0), split_text, font=font)
-                text_width = text_bbox[2] - text_bbox[0]
-                text_height = text_bbox[3] - text_bbox[1]
+                # Splits the formatted text into segments and marks whether each segment is an author
+                text_segments = Utils.get_text_segments(formatted_text)
 
-                # Randomly position the text within the image boundaries
-                text_x = random.randint(0, max(0, width - text_width))
-                text_y = random.randint(0, max(0, height - text_height))
 
-                # Draw the text onto the image with white color
-                draw.text((text_x, text_y), result_text, font=font, fill="white")
+
+
+
+                # Step 1: Calculate the maximum text width among all segments
+                max_text_width = max(
+                    [
+                        draw.textbbox((0, 0), segment, font=font_author_result if is_author else font_body_result)[2]
+                        for segment, is_author in text_segments
+                    ]
+                )
+                # Step 2: Calculate the total text height required for all segments including spaces between them
+                total_text_height = sum(
+                    [
+                        draw.textbbox((0, 0), segment, font=font_author_result if is_author else font_body_result)[3] + 10
+                        for segment, is_author in text_segments
+                    ]
+                )
+
+                # Step 3: Randomly position the initial text within the image boundaries
+                # Ensure the text fits within the width of the image
+                initial_text_x = random.randint(0, max(0, width - max_text_width))
+                # Ensure the text fits within the height of the image
+                initial_text_y = random.randint(0, max(0, height - total_text_height))
+
+                # Initialize the current y position
+                current_y = initial_text_y
+
+                # Step 4: Iterate through each text segment and its corresponding author status
+                for segment, is_author in text_segments:
+                    # If the segment is an author, add spaces between lowercase and uppercase letters
+                    if is_author:
+                        segment = Utils.add_spaces(segment)
+                    # Step 5: Select the appropriate font based on whether the segment is an author
+                    font = font_author_result if is_author else font_body_result
+                    # Step 6: Calculate the bounding box of the text segment to get its width and height
+                    text_bbox = draw.textbbox((0, 0), segment, font=font)
+                    text_height = text_bbox[3] - text_bbox[1]
+
+                    # Set the x position to the initial random value calculated earlier
+                    text_x = initial_text_x
+
+                    # Step 7: Check if the next segment fits within the image height
+                    if current_y + text_height > height:
+                        break  # Stop if the text exceeds the image height
+
+                    # Step 8: Draw the text onto the image at the calculated x and current y positions
+                    draw.text((text_x, current_y), segment, font=font, fill="white")
+
+                    # Step 9: Increment the current y position by the height of the text segment plus some space
+                    current_y += text_height + 10  # Add some space between lines
 
                 # Save the created meme to the output directory with a random filename
                 out_path = os.path.join(self.output_dir, f"meme_{random.randint(0, 1000000)}.jpg")
