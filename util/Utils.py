@@ -1,7 +1,9 @@
 import os
 import re
+from typing import List, Tuple
 from PIL import Image, ImageFont
 from config import load_config
+
 
 class Utils:
 
@@ -276,6 +278,28 @@ class Utils:
             print("Not available")
             return None
         
+    @staticmethod
+    def retrieve_file_paths(directory_path: str, valid_extensions: Tuple[str, ...]) -> List[str]:
+        """
+        Retrieve all file paths with specified extensions from the given directory.
+
+        This function lists all files in the specified directory and filters them to 
+        include only those with the given extensions.
+
+        Parameters:
+        directory_path (str): The path to the directory containing the files.
+        valid_extensions (Tuple[str, ...]): A tuple of valid file extensions to filter by.
+
+        Returns:
+        List[str]: A list of full paths to the files in the directory with specified extensions.
+        """
+        file_paths = [
+            os.path.join(directory_path, file_name)
+            for file_name in os.listdir(directory_path)
+            if file_name.lower().endswith(valid_extensions)
+        ]
+        return file_paths
+    
     @staticmethod    
     def retrieve_file_dir(category: str) -> str:
         """
