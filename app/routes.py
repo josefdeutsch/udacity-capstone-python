@@ -1,8 +1,7 @@
 import os
 import random
 import tempfile
-from flask import Flask, render_template, request
-
+from flask import Flask, render_template, request, abort
 import requests
 from util.Utils import Utils
 from services.ingestor_generator.QuoteEngine import Ingestor
@@ -56,18 +55,18 @@ def meme_rand():
     Returns:
         str: The rendered HTML template for the meme page.
     """
+    if not quotes or not imgs:
+        abort(404, description="No quotes or images found.")
+    
     img = random.choice(imgs)
     quote = random.choice(quotes)
     path = meme.make_meme(img, quote.body, quote.author)
     return render_template('meme.html', path=path)
 
-
-
 @app.route('/create', methods=['GET'])
 def meme_form():
     """ User input for meme information """
     return render_template('meme_form.html')
-
 
 @app.route('/create', methods=['POST'])
 def meme_post():
@@ -85,6 +84,9 @@ def meme_post():
     body = request.form['body']
     author = request.form['author']
     
+    if not image_url or not body or not author:
+        abort(400, description="Image URL, body, and author are required.")
+    
     # Create a temporary file in the /tmp directory
     tmp_dir = '/tmp'
     tmp_file_path = os.path.join(tmp_dir, next(tempfile._get_candidate_names()) + '.jpg')
@@ -92,17 +94,23 @@ def meme_post():
     try:
         # Download the image and save it to the temporary file
         response = requests.get(image_url)
+        if response.status_code != 200:
+            abort(400, description="Could not retrieve image from URL.")
+        
         with open(tmp_file_path, 'wb') as tmp_file:
             tmp_file.write(response.content)
         
         # Generate a meme using the temporary image file
         path = meme.make_meme(tmp_file_path, body, author)
+    except Exception as e:
+        abort(500, description=str(e))
     finally:
         # Remove the temporary file
         if os.path.exists(tmp_file_path):
             os.remove(tmp_file_path)
 
     return render_template('meme.html', path=path)
+
 def main():
     app.run()
 
