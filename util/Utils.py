@@ -1,3 +1,4 @@
+import inspect
 import os
 import re
 from typing import List, Tuple
@@ -343,6 +344,52 @@ class Utils:
         return load_config(os.path.join(root_path, config_path))
 
 
+    @staticmethod
+    def get_calling_child_script_directory(child_dir_name):
+        """
+        Get the path to a child directory within the calling script's directory.
 
+        Parameters:
+        child_dir_name (str): The name of the child directory.
+
+        Returns:
+        str: The absolute path to the child directory.
+        """
+        # Get the frame of the caller
+        caller_frame = inspect.stack()[1]
+        
+        # Get the absolute path of the calling script
+        calling_script_path = os.path.abspath(caller_frame.filename)
+        
+        # Get the directory name of the calling script's absolute path
+        calling_script_directory = os.path.dirname(calling_script_path)
+        
+        # Create the child directory path
+        child_directory_path = os.path.join(calling_script_directory, child_dir_name)
+        
+        # Return the child directory path
+        return child_directory_path
+
+
+
+    @staticmethod
+    def get_calling_script_directory():
+        """
+        Get the directory name of the calling script's directory.
+
+        Returns:
+        str: The absolute path to the calling script's directory.
+        """
+        # Get the frame of the caller
+        caller_frame = inspect.stack()[1]
+        
+        # Get the absolute path of the calling script
+        calling_script_path = os.path.abspath(caller_frame.filename)
+        
+        # Get the directory name of the calling script's absolute path
+        calling_script_directory = os.path.dirname(calling_script_path)
+        
+        # Return the calling script directory path
+        return calling_script_directory
 
     

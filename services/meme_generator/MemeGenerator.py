@@ -64,8 +64,12 @@ def generate_meme(path=None, body=None, author=None):
         if author is None:
             raise Exception('Author Required if Body is Used')
         quote = QuoteModel(body, author)
+    
+    # Get the path to the 'tmp' directory within the calling script's directory
+    tmp_directory = Utils.get_calling_child_script_directory('tmp')
     # Generate the meme using the MemeEngine class
-    meme = ImageCaptioner(os.path.join('tmp'))
+    meme = ImageCaptioner(tmp_directory)
+
     meme_path = meme.make_meme(img, quote.body, quote.author)
     return meme_path
 
