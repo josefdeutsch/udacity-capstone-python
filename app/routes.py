@@ -1,137 +1,111 @@
 import os
 import random
 import tempfile
-from flask import Flask, render_template, request, abort
+from flask import Flask, render_template, request, abort, url_for
 import requests
 from util.Utils import Utils
 from services.ingestor_generator.QuoteEngine import Ingestor
 from services.meme_generator.models.MemeEngine import ImageCaptioner
 
-app = Flask(__name__)
+class MemeApp:
+    """A Flask application for generating memes."""
 
-# Initialize the ImageCaptioner with the path to the static directory
-meme = ImageCaptioner(os.path.join('static'))
+    def __init__(self):
+        """Initialize the Flask app, set up routes, and load quotes and images."""
+        try:
+            self.app = Flask(__name__)
+            # Get the path to the 'tmp' directory within the calling script's directory
+            static_folder = Utils.get_calling_child_script_directory('static')
+            self.meme = ImageCaptioner(static_folder)
+            self.quotes, self.imgs = self.setup()
+            self.setup_routes()
+        except Exception as e:
+            print(f"Error during initialization: {e}")
 
+    def setup(self):
+        """Retrieve quotes and images for the meme generator.
 
-def setup():
-    """
-    Load all resources required for the meme generator.
+        Returns:
+            tuple: A tuple containing lists of quotes and image file paths.
+        """
+        try:
+            quotes_dir = Utils.retrieve_file_dir('quotes')
+            quote_files = Utils.retrieve_file_paths(quotes_dir, ('.csv', '.docx', '.pdf', '.txt'))
 
-    This function retrieves all quote files from the 'quotes' directory and all
-    image files from the 'images' directory. It parses the quotes and returns
-    a list of quotes and a list of image file paths.
+            quotes = []
+            for file in quote_files:
+                quotes.extend(Ingestor.parse(file))
 
-    Returns:
-        tuple: A tuple containing a list of quotes and a list of image file paths.
-    """
-    quotes_dir = Utils.retrieve_file_dir('quotes')
+            images_path = Utils.retrieve_file_dir('images')
+            imgs = Utils.retrieve_file_paths(images_path, ('.jpg',))
 
-    # Retrieve all quote files in the quotes directory
-    quote_files = Utils.retrieve_file_paths(quotes_dir, ('.csv', '.docx', '.pdf', 'txt'))
-    print(quote_files)
+            return quotes, imgs
+        except Exception as e:
+            print(f"Error during setup: {e}")
+            return [], []
 
-    quotes = []
-    for file in quote_files:
-        quotes.extend(Ingestor.parse(file))
+    def setup_routes(self):
+        """Define the routes for the Flask app."""
+        @self.app.route('/')
+        def meme_rand():
+            """Generate a random meme and render it."""
+            try:
+                if not self.quotes or not self.imgs:
+                    abort(404, description="No quotes or images found.")
+                
+                img = random.choice(self.imgs)
+                quote = random.choice(self.quotes)
+                path = self.meme.make_meme(img, quote.body, quote.author)
+                relative_path = os.path.relpath(path, self.app.static_folder)
+                return render_template('meme.html', path=url_for('static', filename=relative_path))
+            except Exception as e:
+                abort(500, description=f"Error generating random meme: {e}")
 
-    images_path = Utils.retrieve_file_dir('images')
+        @self.app.route('/create', methods=['GET'])
+        def meme_form():
+            """Render the form for creating a custom meme."""
+            try:
+                return render_template('meme_form.html')
+            except Exception as e:
+                abort(500, description=f"Error rendering meme form: {e}")
 
-    # Retrieve all image files in the images directory
-    imgs = Utils.retrieve_file_paths(images_path, ('.jpg'))
-    print(imgs)
+        @self.app.route('/create', methods=['POST'])
+        def meme_post():
+            """Create a meme from a user-provided image URL and text."""
+            try:
+                image_url = request.form['image_url']
+                body = request.form['body']
+                author = request.form['author']
 
-    return quotes, imgs
+                if not image_url or not body or not author:
+                    abort(400, description="Image URL, body, and author are required.")
 
+                tmp_dir = tempfile.gettempdir()
+                tmp_file_path = os.path.join(tmp_dir, next(tempfile._get_candidate_names()) + '.jpg')
 
-# Load quotes and images
-quotes, imgs = setup()
+                response = requests.get(image_url)
+                if response.status_code != 200:
+                    abort(400, description="Could not retrieve image from URL.")
+                
+                with open(tmp_file_path, 'wb') as tmp_file:
+                    tmp_file.write(response.content)
 
+                path = self.meme.make_meme(tmp_file_path, body, author)
+            except requests.RequestException as re:
+                abort(400, description=f"Request error: {re}")
+            except Exception as e:
+                abort(500, description=f"Internal error: {e}")
+            finally:
+                if os.path.exists(tmp_file_path):
+                    os.remove(tmp_file_path)
 
-@app.route('/')
-def meme_rand():
-    """
-    Generate a random meme.
+            relative_path = os.path.relpath(path, self.app.static_folder)
+            return render_template('meme.html', path=url_for('static', filename=relative_path))
 
-    This function selects a random image and a random quote, then generates a meme
-    using these selections. The generated meme is displayed on the main page.
+    def run(self, host='0.0.0.0', port=5000):
+        """Run the Flask app."""
+        try:
+            self.app.run(host=host, port=port)
+        except Exception as e:
+            print(f"Error running the application: {e}")
 
-    Returns:
-        str: The rendered HTML template for the meme page.
-    """
-    if not quotes or not imgs:
-        abort(404, description="No quotes or images found.")
-
-    img = random.choice(imgs)
-    quote = random.choice(quotes)
-    path = meme.make_meme(img, quote.body, quote.author)
-    return render_template('meme.html', path=path)
-
-
-@app.route('/create', methods=['GET'])
-def meme_form():
-    """
-    Render the meme creation form.
-
-    This function displays a form for the user to input details for creating a meme.
-
-    Returns:
-        str: The rendered HTML template for the meme form page.
-    """
-    return render_template('meme_form.html')
-
-
-@app.route('/create', methods=['POST'])
-def meme_post():
-    """
-    Create a user-defined meme.
-
-    This function handles POST requests to create a meme based on user input.
-    It downloads an image from a given URL, generates a meme with provided text,
-    and removes the temporary image file.
-
-    Returns:
-        str: The rendered HTML template for the meme page.
-    """
-    image_url = request.form['image_url']
-    body = request.form['body']
-    author = request.form['author']
-
-    if not image_url or not body or not author:
-        abort(400, description="Image URL, body, and author are required.")
-
-    # Create a temporary file in the /tmp directory
-    tmp_dir = '/tmp'
-    tmp_file_path = os.path.join(tmp_dir, next(tempfile._get_candidate_names()) + '.jpg')
-
-    try:
-        # Download the image and save it to the temporary file
-        response = requests.get(image_url)
-        if response.status_code != 200:
-            abort(400, description="Could not retrieve image from URL.")
-
-        with open(tmp_file_path, 'wb') as tmp_file:
-            tmp_file.write(response.content)
-
-        # Generate a meme using the temporary image file
-        path = meme.make_meme(tmp_file_path, body, author)
-    except Exception as e:
-        abort(500, description=str(e))
-    finally:
-        # Remove the temporary file
-        if os.path.exists(tmp_file_path):
-            os.remove(tmp_file_path)
-
-    return render_template('meme.html', path=path)
-
-
-def main():
-    """
-    Run the Flask application.
-
-    This function runs the Flask application, making the meme generator available.
-    """
-    app.run()
-
-
-if __name__ == "__main__":
-    main()
