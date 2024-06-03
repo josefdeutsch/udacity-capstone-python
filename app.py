@@ -6,10 +6,10 @@ Flask application that generates memes using quotes and images. It provides rout
 for displaying random memes, as well as for creating custom memes through a form.
 
 Modules:
-    MemeApp (from app.routes): The main application class for the meme generator.
+    MemeApp (from app.Routes): The main application class for the meme generator.
 """
 
-from app.routes import MemeApp
+from app.Routes import MemeApp
 
 def main():
     """Main function to initialize and run the MemeApp."""
