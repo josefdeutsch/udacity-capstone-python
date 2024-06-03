@@ -107,8 +107,7 @@ class Utils:
             else:
                 font_size = height * (0.03 - (0.01 * ((text_length - 256) / 256)))
 
-            print(f"Text length: {text_length}, Calculated font size: {font_size}")
-
+           
             font_path = font.path  # Assuming the font object has a 'path' attribute
             return ImageFont.truetype(font_path, int(font_size))
         except Exception as e:
