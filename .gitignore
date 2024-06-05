@@ -1,19 +1,19 @@
-# Bytecode
+# Bytecode:
 __pycache__/
 *.pyc
 
-# Virtual environments
+# Virtual environments:
 venv/
 .env/
 
-# Distribution / Packaging
+# Distribution / Packaging:
 *.egg-info/
 dist/
 build/
 
-# OS generated files
+# OS generated files:
 .DS_Store
 
-# IDE specific
+# IDE specific:
 .idea/
 *.swp
