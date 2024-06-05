@@ -78,7 +78,7 @@ class ImageCaptioner:
                 # Calculate the aspect ratio and resize the image to the specified width    
                 ratio = width / float(img.size[0])
                 height = int(ratio * img.size[1])
-                img = img.resize((width, height), Image.Resampling.LANCZOS)
+                img = img.resize((width, height), Image.LANCZOS)
 
                 # Adjust the font size to fit the text within the image height
                 font_body_result = Utils.calculate_font_size(font_body, full_text, height)
