@@ -71,36 +71,30 @@ class MemeApp:
 
         @self.app.route('/create', methods=['POST'])
         def meme_post():
-            """Create a meme from a user-provided image URL and text."""
+            image_url = request.form['image_url']
+            body = request.form['body']
+            author = request.form['author']
+            if not image_url or not body or not author:
+                abort(400, description="Image URL, body, and author are required.")
+            tmp_file_path = os.path.join(tempfile.gettempdir(), next(tempfile._get_candidate_names()) + '.jpg')
             try:
-                image_url = request.form['image_url']
-                body = request.form['body']
-                author = request.form['author']
-
-                if not image_url or not body or not author:
-                    abort(400, description="Image URL, body, and author are required.")
-
-                tmp_dir = tempfile.gettempdir()
-                tmp_file_path = os.path.join(tmp_dir, next(tempfile._get_candidate_names()) + '.jpg')
-
                 response = requests.get(image_url)
                 if response.status_code != 200:
                     abort(400, description="Could not retrieve image from URL.")
-                
                 with open(tmp_file_path, 'wb') as tmp_file:
                     tmp_file.write(response.content)
-
                 path = self.meme.make_meme(tmp_file_path, body, author)
+                relative_path = os.path.relpath(path, self.app.static_folder)
+                return render_template('meme.html', path=url_for('static', filename=relative_path))
             except requests.RequestException as re:
                 abort(400, description=f"Request error: {re}")
             except Exception as e:
-                abort(500, description=f"Internal error: {e}")
+                abort(500, description="Internal error during meme creation.")
             finally:
                 if os.path.exists(tmp_file_path):
                     os.remove(tmp_file_path)
 
-            relative_path = os.path.relpath(path, self.app.static_folder)
-            return render_template('meme.html', path=url_for('static', filename=relative_path))
+           
 
     def run(self, host='0.0.0.0', port=5000):
         """Run the Flask app."""
