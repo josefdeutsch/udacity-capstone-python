@@ -9,7 +9,7 @@ import os
 import random
 from services.ingestor_generator.base.QuoteModel import QuoteModel
 from services.ingestor_generator.QuoteEngine import Ingestor
-from services.meme_generator.models.memeEngine import ImageCaptioner
+from services.meme_generator.models.MemeEngine2 import ImageCaptioner
 
 from util.Utils import Utils
 
