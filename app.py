@@ -9,7 +9,7 @@ Modules:
     MemeApp (from app.Routes): The main application class for the meme generator.
 """
 
-from app.Rooutes import MemeApp
+from app.Routes import MemeApp
 
 def main():
     """Main function to initialize and run the MemeApp."""
