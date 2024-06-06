@@ -237,12 +237,19 @@ class Utils:
         Raises:
         FileNotFoundError: If the marker is not found in any directory up the
                         tree from the starting directory.
+        PermissionError: If access to a directory is denied.
         """
         current_directory = starting_directory
         
         while True:
-            if marker in os.listdir(current_directory):
-                return current_directory
+            try:
+                with os.scandir(current_directory) as entries:
+                    for entry in entries:
+                        if entry.name == marker:
+                            return current_directory
+            except PermissionError:
+                raise PermissionError(f"Access denied for directory: {current_directory}")
+
             new_directory = os.path.dirname(current_directory)
             if new_directory == current_directory:
                 raise FileNotFoundError(f"Project root containing {marker} not found")
